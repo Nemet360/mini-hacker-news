@@ -7,7 +7,7 @@ public sealed class HostTests
     [Fact]
     public async Task Host_boots_and_unknown_route_returns_404()
     {
-        using var database = new TempDatabase();
+        using var database = new TempPostgresDatabase();
         using var factory = new ApiFactory(database.ConnectionString);
         using var client = factory.CreateClient();
 

@@ -34,6 +34,26 @@ jobs:
 
   build-test:
     runs-on: ubuntu-latest
+    # PostgreSQL for the integration tests and the README smoke. Same major as
+    # docker-compose.yml and the Testcontainers image. The credentials exist only
+    # inside this throwaway job container.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      TEST_PG_CONNECTION: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres
+      ConnectionStrings__Posts: Host=localhost;Port=5432;Database=minihn;Username=postgres;Password=postgres
+      SMOKE_ADMIN_URL: postgres://postgres:postgres@localhost:5432/postgres
     steps:
       - uses: actions/checkout@v7
         with:
@@ -60,12 +80,27 @@ jobs:
           CONFIGURATION: Release
           EXTRA_TEST_ARGS: --no-build
         run: bash scripts/coverage.sh
+      - name: Coverage into the job summary
+        if: always()
+        run: |
+          {
+            echo '## Test coverage'
+            cat coverage/report/SummaryGithub.md
+          } >> "$GITHUB_STEP_SUMMARY"
+      # The coverage block already ran above, so the smoke skips it.
       - name: The README's own commands, so the docs cannot rot
+        env:
+          SKIP_COVERAGE: '1'
         run: bash scripts/readme-smoke.sh
+      - name: docker-compose.yml brings up a healthy PostgreSQL
+        run: bash scripts/compose-smoke.sh
       - uses: actions/upload-artifact@v7
         with:
           name: coverage-pr
-          path: coverage/**/coverage.cobertura.xml
+          path: |
+            coverage/**/coverage.cobertura.xml
+            coverage/report/Cobertura.xml
+            coverage/report/SummaryGithub.md
 
   format:
     runs-on: ubuntu-latest
@@ -95,6 +130,11 @@ jobs:
   coverage-gate:
     needs: build-test
     runs-on: ubuntu-latest
+    # Only this job writes to the pull request: the coverage comment.
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
@@ -110,5 +150,19 @@ jobs:
           branch: main
           name: coverage-main
           path: base-coverage
-      - name: Compare line coverage against main, 0.5pp tolerance
-        run: python3 scripts/coverage_gate.py pr-coverage base-coverage 0.5
+      # Floors: line >= 90% is the M10 gate. Branch >= 75% is the M1 baseline the
+      # ratchet must not go under.
+      - name: Coverage floors (line 90%, branch 75%) and no drop against main beyond 0.5pp
+        id: gate
+        run: python3 scripts/coverage_gate.py pr-coverage base-coverage 0.5 --min-line 90 --min-branch 75 --comment coverage-comment.md
+      # One comment per pull request, edited in place on every push. A token that
+      # cannot write (Dependabot, forks) skips it rather than failing the gate.
+      - name: Coverage comment on the pull request
+        if: always() && hashFiles('coverage-comment.md') != ''
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          cat coverage-comment.md >> "$GITHUB_STEP_SUMMARY"
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file coverage-comment.md --edit-last --create-if-none

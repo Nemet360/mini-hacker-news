@@ -1,9 +1,10 @@
 # Milestones
 
-One file per milestone, M00 to M18. M00 and M01 are implemented and their
-files also record where each step is in the history and where reality
-departed from the plan; M02 onwards are specifications, written before the
-pair-programming session and not built.
+One file per milestone, M00 to M18. M00, M01 and M10 are implemented, and
+their files also record where each step is in the history and where reality
+departed from the plan. M10 was pulled forward to come straight after M01. The
+rest are specifications, written before the pair-programming session and not
+built.
 
 | # | Milestone | Status | Tag | Coverage gate |
 |---|---|---|---|---|
@@ -17,7 +18,7 @@ pair-programming session and not built.
 | [M07](m07-authentication-and-authorisation.md) | Authentication and authorisation | planned | `v0.7.0` | line >= 90% |
 | [M08](m08-voting.md) | Voting | planned | `v0.8.0` | line >= 90% |
 | [M09](m09-comments.md) | Comments | planned | `v0.9.0` | line >= 90% |
-| [M10](m10-postgresql.md) | PostgreSQL | planned | `v0.10.0` | line >= 90% |
+| [M10](m10-postgresql.md) | PostgreSQL (pulled forward, after M01) | done | `v0.10.0` | line >= 90%, branch >= 75% (measured: 100% / 100%) |
 | [M11](m11-caching.md) | Caching | planned | `v0.11.0` | line >= 90% |
 | [M12](m12-rate-limiting.md) | Rate limiting | planned | `v0.12.0` | line >= 90% |
 | [M13](m13-observability.md) | Observability | planned | `v0.13.0` | line >= 90% |

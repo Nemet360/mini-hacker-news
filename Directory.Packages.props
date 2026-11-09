@@ -11,20 +11,14 @@
 
   <!-- Data access. One EF major, from $(EfVersion) in Directory.Build.props. -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.33" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.33" />
+    <!-- The last provider line built for EF 8; 9.x and later need a newer EF major. -->
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
   </ItemGroup>
 
-  <!-- Transitive, pinned on purpose: EF 8.0.11 resolves SQLitePCLRaw 2.1.6, which
-       carries HIGH severity advisories in the bundled SQLite build (2.1.11 is still
-       affected by GHSA-2m69-gcr7-jv3q; 2.1.14 is clean). Central transitive
-       pinning lifts it without moving the EF major.
-       The CI job `vulnerable-packages` is what found this. -->
+  <!-- OpenAPI document and Swagger UI, served outside Production only. -->
   <ItemGroup>
-    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.14" />
-    <PackageVersion Include="SQLitePCLRaw.core" Version="2.1.14" />
-    <PackageVersion Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.14" />
-    <PackageVersion Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.14" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
 
   <!-- Test stack -->
@@ -38,6 +32,8 @@
     <PackageVersion Include="FluentAssertions" Version="6.12.2" />
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.33" />
+    <!-- A throwaway PostgreSQL for local test runs; CI supplies a service container. -->
+    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.16.0" />
   </ItemGroup>
 
 </Project>

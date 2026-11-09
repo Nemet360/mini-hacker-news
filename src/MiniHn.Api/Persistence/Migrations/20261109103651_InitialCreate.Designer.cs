@@ -4,32 +4,38 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MiniHn.Infrastructure.Persistence;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace MiniHn.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261109044952_InitialCreate")]
+    [Migration("20261109103651_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "8.0.33")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("MiniHn.Domain.Post", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(10000)
-                        .HasColumnType("TEXT")
+                        .HasColumnType("text")
                         .HasColumnName("content");
 
                     b.HasKey("Id")
@@ -37,7 +43,7 @@ namespace MiniHn.Persistence.Migrations
 
                     b.ToTable("posts", null, t =>
                         {
-                            t.HasCheckConstraint("ck_posts_content_length", "length(content) BETWEEN 1 AND 10000");
+                            t.HasCheckConstraint("ck_posts_content_length", "char_length(content) BETWEEN 1 AND 10000");
                         });
                 });
 #pragma warning restore 612, 618

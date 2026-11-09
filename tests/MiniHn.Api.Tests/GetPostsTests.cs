@@ -9,7 +9,7 @@ public sealed class GetPostsTests
     [Fact]
     public async Task Get_posts_on_empty_database_returns_200_and_empty_array()
     {
-        using var database = new TempDatabase();
+        using var database = new TempPostgresDatabase();
         using var factory = new ApiFactory(database.ConnectionString);
         using var client = factory.CreateClient();
 
@@ -24,7 +24,7 @@ public sealed class GetPostsTests
     [Fact]
     public async Task Get_posts_returns_every_stored_post_with_id_and_content()
     {
-        using var database = new TempDatabase();
+        using var database = new TempPostgresDatabase();
         using var factory = new ApiFactory(database.ConnectionString);
         using var client = factory.CreateClient();
 
@@ -38,7 +38,7 @@ public sealed class GetPostsTests
     [Fact]
     public async Task Posts_survive_a_host_restart()
     {
-        using var database = new TempDatabase();
+        using var database = new TempPostgresDatabase();
 
         using (var first = new ApiFactory(database.ConnectionString))
         {
@@ -53,13 +53,13 @@ public sealed class GetPostsTests
         var body = await clientAfterRestart.GetStringAsync("/posts");
 
         body.Should().Be("""[{"id":1,"content":"written before the restart"}]""",
-            "the store is a file, so a second host sees what the first one wrote");
+            "the store outlives the process, so a second host sees what the first one wrote");
     }
 
     [Fact]
     public async Task Get_posts_does_not_track_entities()
     {
-        using var database = new TempDatabase();
+        using var database = new TempPostgresDatabase();
         using var factory = new ApiFactory(database.ConnectionString);
         using var client = factory.CreateClient();
         await Seed(database, "only post");
@@ -70,7 +70,7 @@ public sealed class GetPostsTests
         context.ChangeTracker.Entries().Should().BeEmpty("a read path has nothing to track");
     }
 
-    private static async Task Seed(TempDatabase database, params string[] contents)
+    private static async Task Seed(TempPostgresDatabase database, params string[] contents)
     {
         await using var context = database.NewContext();
         await context.Database.MigrateAsync();

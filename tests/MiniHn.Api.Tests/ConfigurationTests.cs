@@ -3,14 +3,14 @@ namespace MiniHn.Api.Tests;
 public sealed class ConfigurationTests
 {
     [Fact]
-    public void Host_refuses_to_start_without_a_connection_string()
+    public void Startup_without_postgres_fails_fast_with_a_named_message()
     {
         using var factory = new ApiFactory(connectionString: "   ");
 
         var start = () => factory.CreateClient();
 
         start.Should().Throw<InvalidOperationException>()
-            .WithMessage("*ConnectionStrings:Posts*",
-                "a host with no store must fail at start, not on the first request");
+            .WithMessage("ConnectionStrings:Posts is not configured: set it to a PostgreSQL connection string.",
+                "a host with no store must fail at start, in one line that names the setting and the engine");
     }
 }
