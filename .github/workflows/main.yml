@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-dotnet@v6
       - run: dotnet tool restore
       - run: dotnet test -c Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory coverage
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: coverage-main
           path: coverage/**/coverage.cobertura.xml
