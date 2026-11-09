@@ -488,6 +488,8 @@ data/
 *.db
 *.db-shm
 *.db-wal
-.dotnet8/
 coverage/
 TestResults/
+publish/
+# a per-user SDK install, wherever a contributor puts one
+.dotnet/

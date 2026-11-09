@@ -3,7 +3,8 @@
 ## Setup
 
 ```bash
-git clone <this repo> && cd mini-hackernews
+git clone https://github.com/Nemet360/mini-hacker-news.git
+cd mini-hacker-news
 git config core.hooksPath .githooks   # commit-msg + pre-push checks
 dotnet tool restore
 dotnet restore
