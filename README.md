@@ -8,9 +8,12 @@ returns every stored post as JSON.
 That is the whole of the current scope, on purpose. The tree holds **no** `POST`,
 no validation layer, no Swagger, no health endpoint, no authentication, no
 pagination and no seed data: those are milestones M2 onwards in the
-[roadmap](#roadmap) and are written down rather than built. What is here is built
-to the standard the rest will be held to - one commit per step, a test with every
-behaviour, CI on every push.
+[roadmap](#roadmap), specified under [`docs/`](docs/README.md) and written down
+rather than built. The full list of absences is
+[what this project does not cover](#what-this-project-does-not-cover), and the
+choices behind them are the [working assumptions](#working-assumptions). What is
+here is built to the standard the rest will be held to - one commit per step, a
+test with every behaviour, CI on every push.
 
 ---
 
@@ -23,7 +26,10 @@ behaviour, CI on every push.
 * [Design decisions](#design-decisions)
 * [Tests and coverage](#tests-and-coverage)
 * [Continuous integration](#continuous-integration)
+* [What this project does not cover](#what-this-project-does-not-cover)
+* [Working assumptions](#working-assumptions)
 * [Roadmap](#roadmap)
+* [Per-milestone documents](#per-milestone-documents)
 * [Repository conventions](#repository-conventions)
 * [Filling the store with real data](#filling-the-store-with-real-data)
 
@@ -280,8 +286,10 @@ cat coverage/report/Summary.txt
 Current state of `main`: **11 tests, line coverage 100%, branch coverage 100%**
 (the number CI prints in its job summary).
 
-`coverlet.runsettings` excludes `Persistence/Migrations/**`. That is deliberate
-and it is the only exclusion: a generated `Down()` nobody calls would otherwise
+`coverlet.runsettings` excludes `Persistence/Migrations/**` and `tools/**`. The
+second is the crawler - a development tool, not the product; its pure logic is
+unit tested and still fails the build when it breaks, but it does not move the
+figure the gate ratchets. The first is deliberate too: a generated `Down()` nobody calls would otherwise
 set the coverage number, while the migration's actual effect *is* asserted -
 `Migration_applies_to_an_empty_database_and_creates_posts_table` reads
 `sqlite_master` and checks the table, `AUTOINCREMENT` and the named constraint.
@@ -338,6 +346,84 @@ fails.
 
 ---
 
+## What this project does not cover
+
+Stated plainly, because an absence a reader has to discover looks like an
+oversight - and in a take-home exercise half of these absences are the answer.
+
+**Not built, by instruction.** Nanit asked for a persistent store and
+`GET /posts`, and asked explicitly that nothing more be implemented beforehand.
+So there is no `POST /posts`, no `GET /posts/{id}`, no update, no delete, no
+request-validation layer, no Swagger or OpenAPI document, no pagination, no
+sorting or ranking, no authentication, no authorisation, no voting, no comments,
+no health or readiness endpoint, no seed data, and no `Title` or `CreatedAt` on a
+post. Each of those is a milestone from M02 on: specified under `docs/`, not
+coded.
+
+**Not built, by scope.** PostgreSQL (M10 - the shipped store is SQLite), caching
+and ETags (M11), rate limiting (M12), structured logging, metrics and tracing
+(M13 - the host runs the ASP.NET Core defaults and nothing more), Docker and
+compose (M14), any deployment or release pipeline beyond CI (M15), load tests and
+a published latency budget (M16), maintenance mode (M17), and the hardening pass
+(M18).
+
+**Deliberately absent even inside the code that does exist.**
+
+* **No application-level validation of `content`.** The only bound is the table's
+  `CHECK (length(content) BETWEEN 1 AND 10000)`. There is no write path for a
+  validator to sit on yet, and a column with no bound accepts a 2 GB row.
+* **No concurrency control, no transaction beyond EF's own**, and no uniqueness on
+  `content`: this milestone has one reader and no writer.
+* **No API versioning, no CORS policy, no response compression, no HTTPS
+  redirection, no problem-details handler.** Each belongs to the milestone that
+  first needs it; adding them now would be configuration nothing can test.
+* **No multi-instance story.** Migrations run at host start, which is right for one
+  process and wrong for a rolling deploy - M15 moves that into the release
+  pipeline, and M10 is where a shared store makes it matter.
+* **No retry, backoff or authentication in the crawler** beyond a paced loop: it is
+  a developer command, run by hand.
+* **No performance claim.** Nothing here has been load tested, and `GET /posts`
+  returns the whole table - which is exactly what M05's pagination exists to fix.
+* **The GitHub-side half of M00 is not applied.** Branch protection, required
+  checks, labels, the project board, Milestones and per-step issues need the
+  repository owner's account; the local half (hooks, templates, CODEOWNERS,
+  dependabot) is in the tree.
+
+## Working assumptions
+
+The exercise is small enough that its assumptions decide the design, so they are
+written down rather than implied. Each is something I would ask about in a real
+project and have instead chosen, visibly.
+
+1. **"Persistent" means it survives a process restart, not a machine.** One SQLite
+   file satisfies that, and `Posts_survive_a_host_restart` is what holds me to it.
+   Replication and backups belong to a deployment story nobody has described.
+2. **One reader, no writer, in this milestone.** So the response is the whole
+   table, ordered by `id`, with no paging and no cache.
+3. **`content` is opaque text** - not markdown, not HTML, not sanitised: nothing in
+   this scope renders it. The crawler strips markup *at the source* instead of
+   storing it.
+4. **The brief's example body is the contract**:
+   `[{"id":1,"content":"first post"}]` - camelCase, numeric `id`, a bare array
+   rather than an envelope.
+   `Get_posts_returns_every_stored_post_with_id_and_content` asserts it character
+   for character, so a future envelope has to be a conscious break.
+5. **Ids are server-assigned, opaque and monotonic** - not a client-chosen key and
+   not a hash of the content.
+6. **An empty store is `200` with `[]`**, never `204` and never `404`: an empty
+   collection is a successful answer about a collection that is empty.
+7. **.NET 8 is fixed by the brief.** Its LTS window closes on 10 November 2026, so
+   the target framework sits in one line of `Directory.Build.props`; moving to
+   net10 is that line plus package bumps.
+8. **No paid dependency and no account.** Hence SQLite over a hosted database, the
+   key-less Hacker News API, and FluentAssertions pinned to 6.x - from 8.0 it is
+   licensed per developer for commercial use.
+9. **The reader is a reviewer, not an operator.** The history, the per-step commits
+   and `docs/` are part of the deliverable; a clone must build with nothing but the
+   pinned SDK, and CI runs this README's own commands so that claim cannot rot.
+10. **English throughout the repository**, whoever wrote it - code, commits,
+    comments and documents in one language a future contributor can read.
+
 ## Roadmap
 
 M0 and M1 are implemented (tag `v0.1.0`). Everything below the line is specified
@@ -375,6 +461,18 @@ on the token subject.
 
 ---
 
+## Per-milestone documents
+
+`docs/` holds one markdown file per milestone, M00 to M18: that milestone's goal,
+its ordered steps with the exact commit subject for each, the test every step
+adds, the acceptance check that proves it, and the coverage gate its pull request
+must clear. The two implemented ones also record **where each step is in the
+history** and **where reality departed from the plan** - an SDK installed per-user
+because the machine-wide installer wanted elevation, two extra tooling commits, a
+development port that was already taken.
+
+Start at [docs/README.md](docs/README.md).
+
 ## Repository conventions
 
 One step, one branch, one commit, one pull request - see `CONTRIBUTING.md`.
@@ -400,15 +498,21 @@ One step, one branch, one commit, one pull request - see `CONTRIBUTING.md`.
 
 ## Filling the store with real data
 
-`GET /posts` is more convincing on real rows than on hand-typed ones, so there is
-a crawler for the public Hacker News API - and it lives on the
-**`tooling/hn-crawler`** branch, deliberately outside `main` and outside
-`v0.1.0`. The assignment asks for persistent storage and `GET /posts` and for
-nothing more; a seed tool inside the submitted tree would be exactly that "more".
+`GET /posts` is more convincing on real rows than on hand-typed ones, so
+`tools/MiniHn.Crawler` fills the store from the public Hacker News API.
+
+**It is a development tool, not part of the assignment.** The two requirements are
+persistent storage and `GET /posts`; the crawler is how the data behind a demo got
+there, and it is in the tree so nobody has to take that data on trust. It is a
+separate project, nothing under `src/` references it, and `coverlet.runsettings`
+excludes it from the coverage figure the gate ratchets - its own unit tests still
+run and still fail the build when they break. `tooling/hn-crawler` remains as the
+branch it was developed on.
 
 ```bash
-git switch tooling/hn-crawler
-dotnet run --project tools/MiniHn.Crawler -- --count 30
+dotnet run --project tools/MiniHn.Crawler -- --count 30        # add 30 stories
+dotnet run --project tools/MiniHn.Crawler -- --count 5 --dry-run
+dotnet run --project tools/MiniHn.Crawler -- --clear --count 50
 dotnet run --project src/MiniHn.Api
 curl -s http://localhost:5080/posts
 ```
