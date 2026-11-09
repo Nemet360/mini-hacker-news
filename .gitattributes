@@ -1,6 +1,3 @@
 * text=auto eol=lf
-*.sln text eol=crlf
-*.csproj text eol=crlf
-*.props text eol=crlf
 *.png binary
 *.db binary
