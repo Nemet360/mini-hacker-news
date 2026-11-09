@@ -22,6 +22,7 @@ check 0 "docs: document how to run the api"
 check 0 "ci: add pull request workflow"
 check 0 "test(api): cover the empty list response"
 check 0 "revert: feat(api): add get posts endpoint"
+check 0 "Merge pull request #1 from tzahinemet/milestone/m01-list-posts"
 
 check 1 "Added stuff"
 check 1 "feat: Add Posts Endpoint"
@@ -37,4 +38,4 @@ if [ "$fails" -ne 0 ]; then
   echo "$fails hook vector(s) failed"
   exit 1
 fi
-echo "commit-msg hook: 14/14 vectors OK"
+echo "commit-msg hook: 15/15 vectors OK"
