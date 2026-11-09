@@ -1,0 +1,85 @@
+name: build
+
+# The project's build, on every push and on demand. The pull-request gate lives
+# in ci.yml and adds the commit linter, the formatter and the coverage ratchet;
+# this workflow answers one question only: does the repository build and pass
+# its tests, on a clean machine, from the SDK pinned in global.json.
+
+on:
+  push:
+    branches: [ '**' ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: 'true'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use the SDK pinned in global.json
+        uses: actions/setup-dotnet@v4
+
+      - run: dotnet --version
+
+      - name: Restore local tools (dotnet-ef, reportgenerator)
+        run: dotnet tool restore
+
+      - name: Restore packages against the committed lock files
+        run: dotnet restore --locked-mode
+
+      - name: Build
+        run: dotnet build --no-restore -c Release
+
+      - name: The migration snapshot matches the model
+        run: dotnet ef migrations has-pending-model-changes --project src/MiniHn.Api
+
+      - name: Test with coverage
+        run: >
+          dotnet test --no-build -c Release
+          --collect:"XPlat Code Coverage"
+          --settings coverlet.runsettings
+          --results-directory coverage
+          --logger "trx;LogFileName=tests.trx"
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          dotnet tool run reportgenerator \
+            -reports:'coverage/**/coverage.cobertura.xml' \
+            -targetdir:coverage/report \
+            -reporttypes:'TextSummary;MarkdownSummaryGithub'
+          cat coverage/report/Summary.txt
+          {
+            echo '## Test coverage'
+            cat coverage/report/SummaryGithub.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: The README's own run instructions still work
+        run: bash scripts/readme-smoke.sh
+
+      - name: Publish a self-contained-free release build
+        run: dotnet publish src/MiniHn.Api -c Release -o publish --no-build
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-output
+          path: |
+            publish/**
+            coverage/**/coverage.cobertura.xml
+            coverage/report/Summary.txt
+            **/*.trx
+          retention-days: 14
