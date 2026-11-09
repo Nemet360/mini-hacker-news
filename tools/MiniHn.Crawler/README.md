@@ -12,12 +12,21 @@ own unit tests still run and still fail the build when they break.
 
 ## Use
 
+The crawler fills the same PostgreSQL store the API reads: by default the one in
+`ConnectionStrings__Posts`, or the one passed with `--connection`.
+
 ```bash
-dotnet run --project tools/MiniHn.Crawler -- --count 30          # add 30 stories
+export ConnectionStrings__Posts="Host=localhost;Port=5432;Database=minihn;Username=minihn;Password=<yours>"
+
+bash scripts/seed.sh                                              # start over with 100 stories, then count them
+dotnet run --project tools/MiniHn.Crawler                         # add up to 100 stories
 dotnet run --project tools/MiniHn.Crawler -- --count 5 --dry-run  # print, write nothing
-dotnet run --project tools/MiniHn.Crawler -- --clear --count 50   # start over
-dotnet run --project tools/MiniHn.Crawler -- --db other/minihn.db
+dotnet run --project tools/MiniHn.Crawler -- --clear --count 50   # start over with 50
+dotnet run --project tools/MiniHn.Crawler -- --connection "Host=other;Database=minihn;Username=u;Password=p"
 ```
+
+With neither set, it exits with code 2 and names the variable. It prints the
+store as `host:port/database` only, never the password.
 
 Then run the API and read it back:
 

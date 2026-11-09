@@ -30,7 +30,7 @@
        provider that cannot be reopened by a second host cannot express it. -->
   <Target Name="BanEfInMemory" BeforeTargets="Build">
     <Error Condition="'%(PackageReference.Identity)' == 'Microsoft.EntityFrameworkCore.InMemory'"
-           Text="Microsoft.EntityFrameworkCore.InMemory is banned in this repository: test against SQLite, the engine we ship." />
+           Text="Microsoft.EntityFrameworkCore.InMemory is banned in this repository: test against PostgreSQL, the engine we ship." />
   </Target>
 
 </Project>

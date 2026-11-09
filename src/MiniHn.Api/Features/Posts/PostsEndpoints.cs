@@ -14,7 +14,7 @@ public static class PostsEndpoints
     }
 
     // Ordered by id so the body is deterministic: a reviewer comparing two runs
-    // must not see a different array because SQLite returned rows in another order.
+    // must not see a different array because the planner returned rows in another order.
     private static async Task<IResult> GetPosts(AppDbContext database, CancellationToken cancellationToken)
     {
         var posts = await database.Posts

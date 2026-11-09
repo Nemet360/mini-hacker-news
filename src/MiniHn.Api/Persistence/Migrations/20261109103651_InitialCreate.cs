@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -14,14 +15,14 @@ public partial class InitialCreate : Migration
             name: "posts",
             columns: table => new
             {
-                id = table.Column<long>(type: "INTEGER", nullable: false)
-                    .Annotation("Sqlite:Autoincrement", true),
-                content = table.Column<string>(type: "TEXT", maxLength: 10000, nullable: false)
+                id = table.Column<long>(type: "bigint", nullable: false)
+                    .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                content = table.Column<string>(type: "text", nullable: false)
             },
             constraints: table =>
             {
                 table.PrimaryKey("pk_posts", x => x.id);
-                table.CheckConstraint("ck_posts_content_length", "length(content) BETWEEN 1 AND 10000");
+                table.CheckConstraint("ck_posts_content_length", "char_length(content) BETWEEN 1 AND 10000");
             });
     }
 

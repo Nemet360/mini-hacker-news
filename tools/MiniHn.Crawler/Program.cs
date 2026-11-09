@@ -8,14 +8,23 @@ using MiniHn.Infrastructure.Persistence;
 // the assignment, and nothing in the API references it. The API it reads is the
 // official, key-less Firebase one.
 //
-//   dotnet run --project tools/MiniHn.Crawler -- --count 30
+//   dotnet run --project tools/MiniHn.Crawler                 # 100 stories into $ConnectionStrings__Posts
 //   dotnet run --project tools/MiniHn.Crawler -- --count 5 --dry-run
-//   dotnet run --project tools/MiniHn.Crawler -- --db other/minihn.db --clear
+//   dotnet run --project tools/MiniHn.Crawler -- --clear --connection "Host=...;Database=..."
 
 var options = CrawlerOptions.Parse(args);
 if (options is null)
 {
     Console.WriteLine(CrawlerOptions.Usage);
+    return 2;
+}
+
+var connectionString = options.ConnectionString
+    ?? Environment.GetEnvironmentVariable(CrawlerOptions.ConnectionStringVariable);
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    Console.Error.WriteLine(
+        $"no store: pass --connection or set {CrawlerOptions.ConnectionStringVariable} to a PostgreSQL connection string");
     return 2;
 }
 
@@ -36,10 +45,8 @@ http.DefaultRequestHeaders.UserAgent.ParseAdd("MiniHn-Crawler/1.0");
 var client = new HackerNewsClient(http);
 
 var dbOptions = new DbContextOptionsBuilder<AppDbContext>()
-    .UseSqlite($"Data Source={options.DatabasePath}")
+    .UseNpgsql(connectionString)
     .Options;
-
-Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(options.DatabasePath))!);
 
 await using var database = new AppDbContext(dbOptions);
 await database.Database.MigrateAsync(cancellation.Token);
@@ -59,7 +66,7 @@ var existing = await database.Posts
 var seen = new HashSet<string>(existing, StringComparer.Ordinal);
 var storedBefore = seen.Count;   // seen grows as the crawl runs, so a dry run reports from here
 
-Console.WriteLine($"store: {Path.GetFullPath(options.DatabasePath)} ({seen.Count} post(s) already there)");
+Console.WriteLine($"store: {StoreName(connectionString)} ({seen.Count} post(s) already there)");
 
 IReadOnlyList<long> ids;
 try
@@ -146,6 +153,13 @@ Console.WriteLine(
     (options.DryRun ? " (dry run, nothing was written)" : string.Empty));
 
 return failed > 0 && added == 0 ? 1 : 0;
+
+// Host and database only: the connection string carries the password.
+static string StoreName(string connectionString)
+{
+    var parsed = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
+    return $"{parsed.Host}:{parsed.Port}/{parsed.Database}";
+}
 
 static string Preview(string content) =>
     content.Length <= 90 ? content : content[..90] + "...";

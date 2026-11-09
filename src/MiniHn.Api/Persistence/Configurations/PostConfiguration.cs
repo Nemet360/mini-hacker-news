@@ -14,17 +14,17 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
     {
         builder.ToTable("posts", table => table.HasCheckConstraint(
             "ck_posts_content_length",
-            $"length(content) BETWEEN 1 AND {MaxContentLength}"));
+            $"char_length(content) BETWEEN 1 AND {MaxContentLength}"));
 
         builder.HasKey(post => post.Id).HasName("pk_posts");
 
         builder.Property(post => post.Id)
             .HasColumnName("id")
-            .ValueGeneratedOnAdd();
+            .UseIdentityByDefaultColumn();   // BY DEFAULT, not ALWAYS: a test may seed its own ids
 
         builder.Property(post => post.Content)
             .HasColumnName("content")
-            .IsRequired()
-            .HasMaxLength(MaxContentLength);
+            .HasColumnType("text")
+            .IsRequired();
     }
 }
