@@ -135,7 +135,9 @@ dotnet format --verify-no-changes                         # style is a build err
 bash scripts/test-hooks.sh                                # 15 commit-message vectors
 bash scripts/readme-smoke.sh                              # runs this README's own commands
 KEEP_DATA=1 bash scripts/readme-smoke.sh                  # ... without deleting a store you filled
-dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings
+dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings \
+  --results-directory coverage
+bash scripts/coverage.sh                                  # the two commands above, plus the report
 ```
 
 ---
@@ -276,15 +278,27 @@ temporary **file** per test.
 
 ```bash
 dotnet test
-dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings
+dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings \
+  --results-directory coverage
 dotnet tool run reportgenerator \
   -reports:'coverage/**/coverage.cobertura.xml' \
   -targetdir:coverage/report -reporttypes:TextSummary
 cat coverage/report/Summary.txt
 ```
 
-Current state of `main`: **11 tests, line coverage 100%, branch coverage 100%**
-(the number CI prints in its job summary).
+Or in one step, which is also what CI runs so the numbers cannot drift from the
+documentation:
+
+```bash
+bash scripts/coverage.sh
+```
+
+Current state of `main`: **34 tests** (11 for the API, 23 for the crawler) with
+**line coverage 100% and branch coverage 100%** on the product assembly - the
+figures CI prints in its job summary. `--results-directory coverage` is not
+optional: without it `dotnet test` writes each project's report under
+`tests/<project>/TestResults/`, and the reportgenerator pattern above finds
+nothing.
 
 `coverlet.runsettings` excludes `Persistence/Migrations/**` and `tools/**`. The
 second is the crawler - a development tool, not the product; its pure logic is

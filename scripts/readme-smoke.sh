@@ -28,4 +28,12 @@ if [ "${KEEP_DATA:-0}" != "1" ]; then
   test "$body" = "[]" || { echo "README smoke: expected [] on a fresh database, got $body"; exit 1; }
 fi
 test -f src/MiniHn.Api/data/minihn.db || { echo "README smoke: the database file was not created"; exit 1; }
+# The README also documents a coverage command; CI advertises this script as
+# "the README's own commands", so that one is run here as well.
+if [ "${SKIP_COVERAGE:-0}" != "1" ]; then
+  echo "README smoke: coverage block"
+  CONFIGURATION=Release EXTRA_TEST_ARGS=--no-build bash scripts/coverage.sh >/dev/null
+  grep -E "Line coverage|Branch coverage" coverage/report/Summary.txt
+fi
+
 echo "README smoke: OK"

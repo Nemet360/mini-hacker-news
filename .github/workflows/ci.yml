@@ -44,7 +44,11 @@ jobs:
       - run: dotnet build --no-restore -c Release
       - name: Migrations snapshot is in sync with the model
         run: dotnet ef migrations has-pending-model-changes --project src/MiniHn.Api
-      - run: dotnet test --no-build -c Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory coverage
+      - name: Test with coverage (the script the README documents)
+        env:
+          CONFIGURATION: Release
+          EXTRA_TEST_ARGS: --no-build
+        run: bash scripts/coverage.sh
       - name: The README's own commands, so the docs cannot rot
         run: bash scripts/readme-smoke.sh
       - uses: actions/upload-artifact@v7

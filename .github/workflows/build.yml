@@ -46,28 +46,27 @@ jobs:
       - name: The migration snapshot matches the model
         run: dotnet ef migrations has-pending-model-changes --project src/MiniHn.Api
 
+      # The very script the README documents, so a reader's numbers and these
+      # numbers cannot be different numbers.
       - name: Test with coverage
-        run: >
-          dotnet test --no-build -c Release
-          --collect:"XPlat Code Coverage"
-          --settings coverlet.runsettings
-          --results-directory coverage
-          --logger "trx;LogFileName=tests.trx"
+        env:
+          CONFIGURATION: Release
+          EXTRA_TEST_ARGS: --no-build --logger trx;LogFileName=tests.trx
+        run: bash scripts/coverage.sh
 
-      - name: Coverage summary
+      - name: Coverage into the job summary
         if: always()
         run: |
-          dotnet tool run reportgenerator \
-            -reports:'coverage/**/coverage.cobertura.xml' \
-            -targetdir:coverage/report \
-            -reporttypes:'TextSummary;MarkdownSummaryGithub'
-          cat coverage/report/Summary.txt
           {
             echo '## Test coverage'
             cat coverage/report/SummaryGithub.md
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # The coverage block is already proven above, so it is skipped here rather
+      # than run a second time.
       - name: The README's own run instructions still work
+        env:
+          SKIP_COVERAGE: '1'
         run: bash scripts/readme-smoke.sh
 
       - name: Publish a self-contained-free release build
