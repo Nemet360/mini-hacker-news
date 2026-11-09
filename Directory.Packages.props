@@ -15,6 +15,18 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11" />
   </ItemGroup>
 
+  <!-- Transitive, pinned on purpose: EF 8.0.11 resolves SQLitePCLRaw 2.1.6, which
+       carries HIGH severity advisories in the bundled SQLite build (2.1.11 is still
+       affected by GHSA-2m69-gcr7-jv3q; 2.1.14 is clean). Central transitive
+       pinning lifts it without moving the EF major.
+       The CI job `vulnerable-packages` is what found this. -->
+  <ItemGroup>
+    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.14" />
+    <PackageVersion Include="SQLitePCLRaw.core" Version="2.1.14" />
+    <PackageVersion Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.14" />
+    <PackageVersion Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.14" />
+  </ItemGroup>
+
   <!-- Test stack -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
