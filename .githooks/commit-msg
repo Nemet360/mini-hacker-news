@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Conventional Commits, enforced locally so CI is not the first place to find out.
+set -uo pipefail
+
+msg_file="$1"
+subject=$(head -n 1 "$msg_file" | sed -e 's/[[:space:]]*$//')
+
+# Comment and fixup lines are git's business, not ours.
+case "$subject" in
+  "#"*) exit 0 ;;
+  "fixup!"*|"squash!"*) exit 0 ;;
+esac
+
+types="feat|fix|refactor|perf|test|docs|build|ci|chore|revert"
+
+if [ ${#subject} -gt 72 ]; then
+  echo "commit-msg: subject is ${#subject} characters, the limit is 72." >&2
+  exit 1
+fi
+
+if ! printf '%s' "$subject" | grep -Eq "^(${types})(\([a-z0-9._-]+\))?!?: .+"; then
+  echo "commit-msg: not a Conventional Commit subject." >&2
+  echo "  got:      $subject" >&2
+  echo "  expected: <type>(<scope>): <lower case summary>" >&2
+  echo "  types:    ${types//|/, }" >&2
+  exit 1
+fi
+
+if printf '%s' "$subject" | grep -Eq '\.$'; then
+  echo "commit-msg: the subject must not end with a full stop." >&2
+  exit 1
+fi
+
+description=${subject#*: }
+first=$(printf '%s' "$description" | cut -c1)
+if printf '%s' "$first" | grep -q '[A-Z]'; then
+  echo "commit-msg: the description must start in lower case: $description" >&2
+  exit 1
+fi
+
+exit 0

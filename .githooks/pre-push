@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Never push a tree that does not build, is not formatted, or fails its tests.
+set -euo pipefail
+
+echo "pre-push: format"
+dotnet format --verify-no-changes
+echo "pre-push: build"
+dotnet build -c Release --nologo
+echo "pre-push: test"
+dotnet test --no-build -c Release --nologo
+echo "pre-push: OK"
