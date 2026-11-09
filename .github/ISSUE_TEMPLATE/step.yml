@@ -1,0 +1,38 @@
+name: Build step
+description: One step of a milestone - one branch, one commit, one PR.
+title: "[M?.?] "
+labels: [ step ]
+body:
+  - type: input
+    id: milestone
+    attributes:
+      label: Milestone
+      placeholder: M1 - Persistent posts and GET /posts
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Commit subject (exact)
+      placeholder: "feat(api): add get posts endpoint returning all posts as json"
+    validations:
+      required: true
+  - type: textarea
+    id: changes
+    attributes:
+      label: Changes
+    validations:
+      required: true
+  - type: textarea
+    id: test
+    attributes:
+      label: Test added in the same commit
+    validations:
+      required: true
+  - type: textarea
+    id: accept
+    attributes:
+      label: Acceptance check
+      description: The command whose output proves the step is done.
+    validations:
+      required: true

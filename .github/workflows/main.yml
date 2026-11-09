@@ -1,0 +1,21 @@
+name: main
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  coverage-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+      - run: dotnet tool restore
+      - run: dotnet test -c Release --collect:"XPlat Code Coverage" --results-directory coverage
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-main
+          path: coverage/**/coverage.cobertura.xml
