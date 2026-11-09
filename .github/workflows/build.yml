@@ -27,10 +27,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Use the SDK pinned in global.json
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
 
       - run: dotnet --version
 
@@ -73,7 +73,7 @@ jobs:
       - name: Publish a self-contained-free release build
         run: dotnet publish src/MiniHn.Api -c Release -o publish --no-build
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: build-output
