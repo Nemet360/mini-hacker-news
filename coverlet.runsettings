@@ -8,7 +8,11 @@
           <!-- EF writes the migration and the model snapshot; a generated Down()
                nobody calls would otherwise dictate the coverage number. The
                migration's effect IS tested, through the schema it produces. -->
-          <ExcludeByFile>**/Persistence/Migrations/**</ExcludeByFile>
+          <!-- The coverage number describes the PRODUCT. The crawler under tools/
+               is a development seed tool; its pure logic is still unit tested and
+               still fails the build when it breaks, but it does not get to move
+               the figure the coverage gate ratchets. -->
+          <ExcludeByFile>**/Persistence/Migrations/**,**/tools/**</ExcludeByFile>
           <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
           <SkipAutoProps>true</SkipAutoProps>
         </Configuration>

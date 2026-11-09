@@ -3,16 +3,16 @@
 Fills the posts store with **real Hacker News stories**, so `GET /posts` can be
 demonstrated on real data instead of hand-typed rows.
 
-This tool lives on the `tooling/hn-crawler` branch and is deliberately **not part
-of `main` or of the `v0.1.0` submission**: the brief asks for persistent storage
-and `GET /posts` and for nothing more, and a seed tool inside the submitted tree
-would be exactly that "more". The branch exists so the data is one command away.
+**It is a development tool, not part of the assignment.** The brief asks for
+persistent storage and `GET /posts`; this is only how the rows behind a demo got
+there. It is a separate project, nothing under `src/` references it, and
+`coverlet.runsettings` keeps it out of the coverage figure the gate ratchets - its
+own unit tests still run and still fail the build when they break.
+`tooling/hn-crawler` is the branch it was developed on.
 
 ## Use
 
 ```bash
-git switch tooling/hn-crawler
-
 dotnet run --project tools/MiniHn.Crawler -- --count 30          # add 30 stories
 dotnet run --project tools/MiniHn.Crawler -- --count 5 --dry-run  # print, write nothing
 dotnet run --project tools/MiniHn.Crawler -- --clear --count 50   # start over
