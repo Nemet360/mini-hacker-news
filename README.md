@@ -505,8 +505,10 @@ One step, one branch, one commit, one pull request - see `CONTRIBUTING.md`.
   (`Directory.Packages.props`) plus committed lock files, with CI restoring in
   `--locked-mode`.
 * **Branches.** `milestone/m00-repo-and-tooling` and `milestone/m01-list-posts`
-  are the two milestone branches merged into `main`; `tooling/hn-crawler` is the
-  development tool below.
+  each point at the last commit of that milestone, so the branch shows the
+  milestone as it was delivered rather than as `main` looks today; both are merged
+  into `main`. `tooling/hn-crawler` is the branch the development tool below was
+  written on. `main` is the one to read, and `v0.1.0` tags its current state.
 
 ---
 
