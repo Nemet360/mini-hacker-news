@@ -38,7 +38,7 @@ With rows in the store the body is the array itself:
 
 ```bash
 dotnet test
-dotnet test --collect:"XPlat Code Coverage"
+dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings
 dotnet tool run reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coverage/report -reporttypes:TextSummary
 ```
 

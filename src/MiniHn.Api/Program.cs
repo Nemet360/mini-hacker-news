@@ -5,8 +5,13 @@ using MiniHn.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("Posts")
-    ?? throw new InvalidOperationException("ConnectionStrings:Posts is not configured.");
+var connectionString = builder.Configuration.GetConnectionString("Posts");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    // Fail at start, loudly. A host that boots without a store answers every
+    // request with a 500 and looks like a bug in the endpoint.
+    throw new InvalidOperationException("ConnectionStrings:Posts is not configured.");
+}
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
 
