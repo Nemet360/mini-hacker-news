@@ -3,9 +3,10 @@ using MiniHn.Crawler;
 using MiniHn.Domain;
 using MiniHn.Infrastructure.Persistence;
 
-// A development tool, deliberately outside the submitted tree: it fills the store
-// with real Hacker News stories so GET /posts can be demonstrated on real data.
-// The API it reads is the official, key-less Firebase one.
+// A development tool, deliberately outside src/: it fills the store with real
+// Hacker News stories so GET /posts can be demonstrated on real data. Not part of
+// the assignment, and nothing in the API references it. The API it reads is the
+// official, key-less Firebase one.
 //
 //   dotnet run --project tools/MiniHn.Crawler -- --count 30
 //   dotnet run --project tools/MiniHn.Crawler -- --count 5 --dry-run
