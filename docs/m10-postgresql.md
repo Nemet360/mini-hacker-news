@@ -2,14 +2,18 @@
 
 | | |
 |---|---|
-| Status | Planned - specified, not built |
+| Status | Done - pulled forward to come straight after M01, onto the M01 schema |
 | Tag | `v0.10.0` |
-| Coverage gate | line >= 90% |
-| Boundary | after the interview |
+| Coverage gate | line >= 90%, branch >= 75% (measured: 100% / 100%) |
+| Boundary | after M01 (originally: after the interview, following M09) |
 
 > Lifted from section C.5 of the engineering plan this repository was built from. The plan is the source of truth; this file is the per-milestone view of it.
 
 ## Specification
+
+The specification below is kept as it was written. It assumed M02-M09 had
+shipped. The section [where this is in the repository](#where-this-is-in-the-repository)
+records what was built and how it departs from this text.
 
 Branch `milestone/m10-postgres`. Tag `v0.10.0`. Gate: line >= 90%; the integration suite moves to Testcontainers PostgreSQL and SQLite is dropped from it (D.2.3).
 
@@ -34,7 +38,53 @@ Branch `milestone/m10-postgres`. Tag `v0.10.0`. Gate: line >= 90%; the integrati
 - Changes: A.1.2 and D.5.2 both state the P1 data is dev data and is discarded, so there is no copy tool: the SQLite connection string, provider switch and `Database:Provider = Sqlite` branch are deleted, and startup fails with a clear message if no PostgreSQL connection string is present.
 - Test: `Startup_without_postgres_fails_fast_with_a_named_message`, `No_sqlite_package_remains_in_the_dependency_graph`. Accept: `dotnet run` with the connection string unset explains itself in one line.
 
----
+## Where this is in the repository
+
+Branch `milestone/m10-postgres`, tag `v0.10.0`. One commit per step:
+
+| Step | Commit subject |
+|---|---|
+| (carried in) | `feat(api): serve openapi and swagger ui outside production` |
+| 10.1 + 10.3 + 10.4 + 10.5 | `feat(data): switch persistence to postgresql` |
+| 10.2 | `build(docker): add docker-compose with postgresql 17` |
+| seed | `feat(crawler): seed 100 hacker news posts with one command` |
+| CI | `ci: test against postgresql and enforce coverage floors` |
+| CD | `ci(release): publish a github release on version tags` |
+| docs | `docs: record m10 as pulled forward onto the m1 schema` |
+
+Measured, not estimated: **47 tests** (22 API, 25 crawler), **line 100% (50 of
+50), branch 100% (6 of 6), method 100% (10 of 10)**. M01 had 40 lines and 2
+branches.
+
+**Deviations from the plan as written:**
+
+* **Pulled forward.** M10 runs straight after M01, so "the full schema" is the
+  M01 `posts` table. The items that need later columns move to the milestone
+  that adds the column, and that milestone writes its own PostgreSQL migration:
+  * `timestamptz` for dates: M05 step 5.0, where `CreatedAt` arrives.
+  * the case-insensitive unique index on `lower(username)`: M07 step 7.1, where
+    `User` arrives.
+* **No provider switch.** Steps 10.1 and 10.5 became one step. EF migrations
+  belong to one provider, so a `Database:Provider` switch would have meant two
+  migration sets kept in step for one commit's lifetime. The SQLite migration
+  was deleted and `InitialCreate` regenerated against Npgsql.
+* **A database per test instead of Respawn.** Respawn deletes rows but does not
+  restart identities on PostgreSQL, and the M01 tests assert ids `1, 2`. Each
+  test gets `minihn_test_<guid>` on the shared server, dropped
+  `WITH (FORCE)` on dispose.
+* **PostgreSQL 17, not 16**, in compose, CI and Testcontainers alike.
+* **`DesignTimeDbContextFactory`** was added so `dotnet ef` needs neither a
+  database nor a secret, which keeps the CI drift check working without one.
+* **Swagger carried in.** The uncommitted OpenAPI and Swagger UI wiring was
+  committed first on this branch, with tests for both environments. Without
+  the Production test the branch figure would have been 83.3%.
+* **Added beyond the spec:** absolute coverage floors in CI (line 90%, branch
+  75%) on ReportGenerator's merged report, a coverage comment on each pull
+  request, a `v*` release workflow, and `scripts/seed.sh` for a 100-story demo
+  feed. The crawler's `--db` became `--connection` and its default count went
+  from 25 to 100.
+* `No_sqlite_package_remains_in_the_dependency_graph` scans every committed
+  `packages.lock.json`, which also catches a transitive reference.
 
 ---
 

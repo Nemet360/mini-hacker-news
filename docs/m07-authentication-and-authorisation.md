@@ -14,7 +14,7 @@
 Branch `milestone/m07-auth`. Tag `v0.7.0`. Gate: line >= 90%, auth code >= 95%. Choice: exactly the design D.1 specifies, with no stepping stone — self-issued JWT access token (10 min, D.1.5) signed **ES256** with a JWKS endpoint and key rotation, rotating refresh tokens, and **Argon2id** password hashing via `Isopoh.Cryptography.Argon2` on the OWASP profile with a pepper. D.1.4 rejects PBKDF2 (GPU-friendly, and the Identity default is under-tuned) and D.1.8 rejects HS256 (a shared secret held by every verifier is what makes algorithm confusion exploitable), so neither may appear here: the build plan must not implement what the threat model writes a negative test against.
 
 **7.1** `feat(data): add User entity and unique username index`
-- Changes: `User(Id, Username, PasswordHash, CreatedAt, Role)`, unique index on lower-cased username, migration.
+- Changes: `User(Id, Username, PasswordHash, CreatedAt, Role)`, unique index on lower-cased username (PostgreSQL: a unique index on `lower(username)`, moved here from M10 10.3 because M10 ran before this milestone), migration.
 - Test: `Duplicate_username_is_rejected_by_database_case_insensitively`. Accept: migration applies on a populated DB.
 
 **7.2** `feat(auth): add POST /auth/register with password hashing`

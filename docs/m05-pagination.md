@@ -14,7 +14,7 @@
 Branch `milestone/m05-pagination`. Tag `v0.5.0`. Gate: line >= 90%. Design: keyset (cursor) pagination exactly as A.6.2 specifies it — the response body stays a bare JSON array so the brief's example shape is not broken, and paging metadata goes in the `Link` header (RFC 8288). The cursor is opaque and carries the sort it was issued for, so it cannot be replayed against a different ordering. Building anything else here would fail A.6.7's OpenAPI snapshot test.
 
 **5.0** `feat(data): add CreatedAt to posts with backfill`
-- Changes: `CreatedAt` (UTC, `DateTimeOffset`) set from an injected `TimeProvider`; migration backfills existing rows to the migration time; ADR 0003 states why it was not in M1 (Nanit scope). The keyset cursor orders on this column, so it has to land before step 5.2.
+- Changes: `CreatedAt` (UTC, `DateTimeOffset`) set from an injected `TimeProvider`; migration backfills existing rows to the migration time; ADR 0003 states why it was not in M1 (Nanit scope). M10 ran before this milestone, so the column is `timestamptz` and the migration is a PostgreSQL one. The keyset cursor orders on this column, so it has to land before step 5.2.
 - Test: `Created_post_has_created_at_from_time_provider` using `FakeTimeProvider` (`Microsoft.Extensions.TimeProvider.Testing`). Accept: `GET /posts/1` shows `createdAt`.
 
 **5.1** `feat(api): add limit parameter to GET /posts`
