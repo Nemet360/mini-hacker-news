@@ -21,11 +21,10 @@ updates:
       # 8.0 moved FluentAssertions to a paid licence for commercial use.
       - dependency-name: "FluentAssertions"
         update-types: [ "version-update:semver-major" ]
-    groups:
-      efcore:
-        patterns: [ "Microsoft.EntityFrameworkCore*" ]
-      test-stack:
-        patterns: [ "xunit*", "FluentAssertions", "coverlet*", "Microsoft.NET.Test.Sdk" ]
+    # Deliberately ungrouped: a grouped pull request is titled "Bump the <name>
+    # group with N updates", whose capital B and missing type fail the commitlint
+    # job this repository runs over every commit. One dependency per pull request
+    # also matches the one-change-one-review rule in CONTRIBUTING.md.
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
