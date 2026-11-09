@@ -47,7 +47,7 @@ jobs:
       - run: dotnet test --no-build -c Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory coverage
       - name: The README's own commands, so the docs cannot rot
         run: bash scripts/readme-smoke.sh
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: coverage-pr
           path: coverage/**/coverage.cobertura.xml
@@ -85,7 +85,7 @@ jobs:
       - name: Download the baseline produced by main
         id: baseline
         continue-on-error: true
-        uses: dawidd6/action-download-artifact@v6
+        uses: dawidd6/action-download-artifact@v28
         with:
           workflow: main.yml
           branch: main
