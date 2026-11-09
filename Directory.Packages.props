@@ -11,8 +11,8 @@
 
   <!-- Data access. One EF major, from $(EfVersion) in Directory.Build.props. -->
   <ItemGroup>
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.22" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.22" />
   </ItemGroup>
 
   <!-- Test stack -->
