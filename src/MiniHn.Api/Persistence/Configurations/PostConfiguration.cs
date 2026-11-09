@@ -16,7 +16,7 @@ public sealed class PostConfiguration : IEntityTypeConfiguration<Post>
             "ck_posts_content_length",
             $"length(content) BETWEEN 1 AND {MaxContentLength}"));
 
-        builder.HasKey(post => post.Id);
+        builder.HasKey(post => post.Id).HasName("pk_posts");
 
         builder.Property(post => post.Id)
             .HasColumnName("id")
