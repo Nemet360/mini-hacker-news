@@ -35,7 +35,7 @@
     <!-- FluentAssertions stays on 6.x deliberately: from 8.0 it is licensed per
          developer for commercial use. A test-library bump must not change what the
          repository costs to build. -->
-    <PackageVersion Include="FluentAssertions" Version="6.12.1" />
+    <PackageVersion Include="FluentAssertions" Version="6.12.2" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.33" />
   </ItemGroup>
