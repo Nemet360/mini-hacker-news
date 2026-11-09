@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using MiniHn.Api.Features.Posts;
 using MiniHn.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,8 @@ using (var scope = app.Services.CreateScope())
     var database = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     database.Database.Migrate();
 }
+
+app.MapPosts();
 
 app.Run();
 
