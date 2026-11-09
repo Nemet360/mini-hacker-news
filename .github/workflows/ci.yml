@@ -40,7 +40,18 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-dotnet@v6
       - run: dotnet tool restore
-      - run: dotnet restore --locked-mode
+      # Dependabot bumps a version without regenerating the committed lock files,
+      # so --locked-mode fails its pull requests with NU1004 - a true statement
+      # about the lock file and a useless one about the change. Its branches
+      # restore without the flag and the lock files are refreshed when the bump is
+      # taken; every human branch is still held to the lock.
+      - name: Restore
+        run: |
+          if [ "${{ github.actor }}" = "dependabot[bot]" ]; then
+            dotnet restore
+          else
+            dotnet restore --locked-mode
+          fi
       - run: dotnet build --no-restore -c Release
       - name: Migrations snapshot is in sync with the model
         run: dotnet ef migrations has-pending-model-changes --project src/MiniHn.Api
