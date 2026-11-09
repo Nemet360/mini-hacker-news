@@ -85,7 +85,7 @@ jobs:
       - name: Download the baseline produced by main
         id: baseline
         continue-on-error: true
-        uses: dawidd6/action-download-artifact@v6
+        uses: dawidd6/action-download-artifact@v28
         with:
           workflow: main.yml
           branch: main

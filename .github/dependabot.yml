@@ -5,11 +5,21 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Conventional Commits are enforced on every commit of a branch, dependabot's
+    # included: without this prefix its own pull requests fail the commitlint job.
+    commit-message:
+      prefix: "build(deps)"
+      prefix-development: "build(deps)"
     # EF's major is tied to the target framework ($(EfVersion) in
     # Directory.Build.props), so a major bump is a framework decision and belongs
     # to the milestone that moves the TFM - not to an automatic pull request.
     ignore:
       - dependency-name: "Microsoft.EntityFrameworkCore*"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "dotnet-ef"
+        update-types: [ "version-update:semver-major" ]
+      # 8.0 moved FluentAssertions to a paid licence for commercial use.
+      - dependency-name: "FluentAssertions"
         update-types: [ "version-update:semver-major" ]
     groups:
       efcore:
@@ -20,3 +30,5 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+    commit-message:
+      prefix: "build(deps)"
