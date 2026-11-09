@@ -6,7 +6,7 @@ A small posts API on .NET 8. Posts are stored persistently, and `GET /posts`
 returns every stored post as JSON.
 
 That is the whole of the current scope, on purpose. The tree holds **no** `POST`,
-no validation layer, no Swagger, no health endpoint, no authentication, no
+no validation layer, no health endpoint, no authentication, no
 pagination and no seed data: those are milestones M2 onwards in the
 [roadmap](#roadmap), specified under [`docs/`](docs/README.md) and written down
 rather than built. The full list of absences is
@@ -110,6 +110,10 @@ One step more, once per clone, so the commit rules apply locally too:
 ```bash
 git config core.hooksPath .githooks
 ```
+
+Outside Production the API serves Swagger UI at
+<http://localhost:5080/swagger>. In VS Code, F5 builds, starts the API under the
+debugger on port 5085 and opens its Swagger page (`.vscode/launch.json`).
 
 ### If port 5080 is taken
 
@@ -368,7 +372,7 @@ oversight - and in a take-home exercise half of these absences are the answer.
 **Not built, by instruction.** Nanit asked for a persistent store and
 `GET /posts`, and asked explicitly that nothing more be implemented beforehand.
 So there is no `POST /posts`, no `GET /posts/{id}`, no update, no delete, no
-request-validation layer, no Swagger or OpenAPI document, no pagination, no
+request-validation layer, no pagination, no
 sorting or ranking, no authentication, no authorisation, no voting, no comments,
 no health or readiness endpoint, no seed data, and no `Title` or `CreatedAt` on a
 post. Each of those is a milestone from M02 on: specified under `docs/`, not

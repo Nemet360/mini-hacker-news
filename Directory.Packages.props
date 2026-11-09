@@ -15,6 +15,11 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.33" />
   </ItemGroup>
 
+  <!-- OpenAPI document and Swagger UI, served outside Production only. -->
+  <ItemGroup>
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+  </ItemGroup>
+
   <!-- Transitive, pinned on purpose: EF 8.0.11 resolves SQLitePCLRaw 2.1.6, which
        carries HIGH severity advisories in the bundled SQLite build (2.1.11 is still
        affected by GHSA-2m69-gcr7-jv3q; 2.1.14 is clean). Central transitive

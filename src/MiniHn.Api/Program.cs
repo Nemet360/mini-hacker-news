@@ -14,8 +14,18 @@ if (string.IsNullOrWhiteSpace(connectionString))
 }
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// The OpenAPI document and its UI describe the API to a developer; production
+// serves the API only.
+if (!app.Environment.IsProduction())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // Persistent storage must exist on a fresh clone with no manual step, so the host
 // creates the database directory and applies pending migrations before it serves.
