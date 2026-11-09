@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
       - run: dotnet tool restore
       - run: dotnet test -c Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory coverage
       - uses: actions/upload-artifact@v4
