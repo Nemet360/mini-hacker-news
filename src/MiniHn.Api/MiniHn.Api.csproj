@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>MiniHn</RootNamespace>
+    <AssemblyName>MiniHn.Api</AssemblyName>
+    <UserSecretsId>minihn-api</UserSecretsId>
+  </PropertyGroup>
+
+</Project>
