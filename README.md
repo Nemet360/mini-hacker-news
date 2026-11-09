@@ -306,7 +306,7 @@ What the suite buys, test by test:
 
 ## Continuous integration
 
-Two workflows, because they answer different questions.
+Three workflows, because they answer different questions.
 
 **`build.yml` - the project's build.** On every push to every branch, on `v*`
 tags and on demand: the pinned SDK, `dotnet restore --locked-mode`, a Release
@@ -325,6 +325,11 @@ its own cause:
 | `format` | `dotnet format --verify-no-changes` finds anything |
 | `vulnerable-packages` | a vulnerable or deprecated package, or a gitleaks hit |
 | `coverage-gate` | line coverage dropped more than 0.5pp below `main` |
+
+**`main.yml` - the coverage baseline.** On every push to `main` it runs the tests
+with coverage and uploads the `coverage-main` artifact. That artifact is what the
+pull-request `coverage-gate` job compares against, which is why the baseline is
+produced by its own workflow rather than inside the gate that reads it.
 
 `scripts/coverage_gate.py` deliberately has three answers rather than two: a
 missing baseline, or nothing to measure, is *"we could not look"* and passes - so
