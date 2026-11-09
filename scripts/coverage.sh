@@ -21,7 +21,7 @@ dotnet test -c "$CONFIGURATION" $EXTRA_TEST_ARGS \
 dotnet tool run reportgenerator \
   -reports:'coverage/**/coverage.cobertura.xml' \
   -targetdir:coverage/report \
-  -reporttypes:'TextSummary;MarkdownSummaryGithub'
+  -reporttypes:'TextSummary;MarkdownSummaryGithub;Cobertura;Badges'
 
 cat coverage/report/Summary.txt
 

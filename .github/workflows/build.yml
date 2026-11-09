@@ -26,6 +26,26 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # PostgreSQL for the integration tests and the README smoke. Same major as
+    # docker-compose.yml and the Testcontainers image. The credentials exist only
+    # inside this throwaway job container.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      TEST_PG_CONNECTION: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres
+      ConnectionStrings__Posts: Host=localhost;Port=5432;Database=minihn;Username=postgres;Password=postgres
+      SMOKE_ADMIN_URL: postgres://postgres:postgres@localhost:5432/postgres
     steps:
       - uses: actions/checkout@v7
 
@@ -69,6 +89,9 @@ jobs:
           SKIP_COVERAGE: '1'
         run: bash scripts/readme-smoke.sh
 
+      - name: Coverage floors (line 90%, branch 75%)
+        run: python3 scripts/coverage_gate.py coverage none 0 --min-line 90 --min-branch 75
+
       - name: Publish a self-contained-free release build
         run: dotnet publish src/MiniHn.Api -c Release -o publish --no-build
 
@@ -80,5 +103,7 @@ jobs:
             publish/**
             coverage/**/coverage.cobertura.xml
             coverage/report/Summary.txt
+            coverage/report/badge_linecoverage.svg
+            coverage/report/badge_branchcoverage.svg
             **/*.trx
           retention-days: 14
