@@ -5,6 +5,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # EF's major is tied to the target framework ($(EfVersion) in
+    # Directory.Build.props), so a major bump is a framework decision and belongs
+    # to the milestone that moves the TFM - not to an automatic pull request.
+    ignore:
+      - dependency-name: "Microsoft.EntityFrameworkCore*"
+        update-types: [ "version-update:semver-major" ]
     groups:
       efcore:
         patterns: [ "Microsoft.EntityFrameworkCore*" ]
