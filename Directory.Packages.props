@@ -37,7 +37,7 @@
          repository costs to build. -->
     <PackageVersion Include="FluentAssertions" Version="6.12.2" />
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.33" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.34" />
   </ItemGroup>
 
 </Project>
