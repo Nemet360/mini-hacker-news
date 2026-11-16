@@ -12,7 +12,7 @@
   <!-- Data access. One EF major, from $(EfVersion) in Directory.Build.props. -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.33" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.33" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.34" />
   </ItemGroup>
 
   <!-- Transitive, pinned on purpose: EF 8.0.11 resolves SQLitePCLRaw 2.1.6, which
